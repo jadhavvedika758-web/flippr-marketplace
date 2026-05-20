@@ -1,0 +1,14 @@
+export const SEED_PRODUCTS = [
+  { id: "p1", sellerId: "u2", sellerName: "Riya Sharma", title: "iPhone 12 Pro - 128GB", description: "Excellent condition iPhone 12 Pro in Pacific Blue. No scratches, original box included. Battery health 91%.", price: 32000, category: "Electronics", images: ["https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400&q=80"], createdAt: Date.now() - 86400000 * 2, active: true },
+  { id: "p2", sellerId: "u2", sellerName: "Riya Sharma", title: "Trek Mountain Bike 2022", description: "Barely used Trek Marlin 5 mountain bike. 21-speed, 27.5\" wheels. Perfect for trails and city rides.", price: 18500, category: "Sports", images: ["https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80"], createdAt: Date.now() - 86400000 * 5, active: true },
+  { id: "p3", sellerId: "u3", sellerName: "Arjun Patel", title: "IKEA Study Desk & Chair Set", description: "Complete study setup. Desk 120x60cm, ergonomic chair with lumbar support. Light wood finish. Self-pickup only.", price: 5500, category: "Furniture", images: ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80"], createdAt: Date.now() - 86400000 * 1, active: true },
+  { id: "p4", sellerId: "u3", sellerName: "Arjun Patel", title: "Sony WH-1000XM4 Headphones", description: "Industry-leading noise cancellation. Excellent battery life. Comes with original carrying case and cables.", price: 12000, category: "Electronics", images: ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80"], createdAt: Date.now() - 86400000 * 3, active: true },
+  { id: "p5", sellerId: "u4", sellerName: "Priya Nair", title: "Vintage Leather Jacket", description: "Genuine leather jacket, size M. Bought from a boutique, worn only twice. Rich brown color, excellent stitching.", price: 3200, category: "Clothing", images: ["https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&q=80"], createdAt: Date.now() - 86400000 * 7, active: true },
+  { id: "p6", sellerId: "u4", sellerName: "Priya Nair", title: "Canon EOS 200D Camera + Kit Lens", description: "Perfect beginner DSLR. 24MP sensor, flip screen, WiFi. Includes 18-55mm kit lens, charger, and bag.", price: 22000, category: "Electronics", images: ["https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=80"], createdAt: Date.now() - 86400000 * 4, active: true },
+];
+
+export const SEED_USERS = [
+  { id: "u2", name: "Riya Sharma", email: "riya@example.com", password: "pass123", avatar: "RS", joinedAt: Date.now() - 86400000 * 30, role: "user" },
+  { id: "u3", name: "Arjun Patel", email: "arjun@example.com", password: "pass123", avatar: "AP", joinedAt: Date.now() - 86400000 * 20, role: "user" },
+  { id: "u4", name: "Priya Nair", email: "priya@example.com", password: "pass123", avatar: "PN", joinedAt: Date.now() - 86400000 * 15, role: "user" },
+];
