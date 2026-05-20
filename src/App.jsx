@@ -6,7 +6,6 @@ import Card from "./components/Card";
 import Input from "./components/Input";
 import Select from "./components/Select";
 import ProductCard from "./components/ProductCard";
-
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -20,13 +19,13 @@ import { callGemini } from "./utils/gemini";
 import {getUsers,getProducts,getMessages,saveUsers,saveProducts,saveMessages} from "./utils/storage";
 import {SEED_PRODUCTS,SEED_USERS} from "./utils/seedData";
 import { initData } from "./utils/initData";
-
+import { getProductsFromDB } from "./utils/firestore";
 
 export default function App() {
   initData();
   const [page, setPage] = useState("home");
   const [currentUser, setCurrentUser] = useState(null);
-  const [products, setProducts] = useState(getProducts);
+  const [products, setProducts] = useState([]);
   const [messages, setMessages] = useState(getMessages);
   const [searchQuery, setSearchQuery] = useState("");
   const [aiSearchResult, setAiSearchResult] = useState(null);
@@ -42,7 +41,10 @@ export default function App() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const refreshProducts = () => { const p = getProducts(); setProducts(p); };
+  const refreshProducts = async () => {
+    const data = await getProductsFromDB();
+    setProducts(data);
+  };
   const refreshMessages = () => { const m = getMessages(); setMessages(m); };
 
   const handleDeleteProduct = (id) => {
@@ -100,6 +102,15 @@ export default function App() {
     ])
   ];
 
+  useEffect(() => {
+    async function loadProducts() {
+      const data = await getProductsFromDB();
+      setProducts(data);
+    }
+
+    loadProducts();
+  }, []);
+
   return (
     <div style={{ minHeight: "100vh", background: "#f7f6ff", fontFamily: "'DM Sans', sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@400;600;700;800&display=swap" rel="stylesheet" />
@@ -144,4 +155,5 @@ export default function App() {
       </div>
     </div>
   );
+
 }

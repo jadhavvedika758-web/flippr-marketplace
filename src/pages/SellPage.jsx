@@ -4,8 +4,8 @@ import Select from "../components/Select";
 import Btn from "../components/Btn";
 import { useState } from "react";
 import { CATEGORIES } from "../utils/constants";
-import { getProducts, saveProducts } from "../utils/storage";
 import { callGemini } from "../utils/gemini";
+import { createProduct } from "../utils/firestore";
 
 export default function SellPage({ currentUser, editProduct, onSaved, onCancel, notify }) {
   const isEditing = !!editProduct;
@@ -70,19 +70,31 @@ export default function SellPage({ currentUser, editProduct, onSaved, onCancel, 
     if (imageUrl.trim() && images.length < 5) { setImages([...images, imageUrl.trim()]); setImageUrl(""); }
   };
 
-  const handleSave = () => {
-    if (!title || !desc || !price || !category) { notify("Please fill all fields.", "error"); return; }
-    const products = getProducts();
-    if (isEditing) {
-      const updated = products.map(p => p.id === editProduct.id ? { ...p, title, description: desc, price: parseInt(price), category, images } : p);
-      saveProducts(updated);
-    } else {
-      const newProduct = { id: `p${Date.now()}`, sellerId: currentUser.id, sellerName: currentUser.name, title, description: desc, price: parseInt(price), category, images, createdAt: Date.now(), active: true };
-      saveProducts([...products, newProduct]);
+  const handleSave = async () => {
+    if (!title || !desc || !price || !category) {
+      notify("Please fill all fields.", "error");
+      return;
     }
-    onSaved();
-  };
 
+    try {
+      await createProduct({
+        sellerId: currentUser.id,
+        sellerName: currentUser.name,
+        title,
+        description: desc,
+        price: parseInt(price),
+        category,
+        images
+      });
+
+      notify("Product added successfully!");
+      onSaved();
+
+    } catch (error) {
+      console.error(error);
+      notify("Failed to add product.", "error");
+    }
+  };
   return (
     <div style={{ maxWidth: 700, margin: "0 auto" }}>
       <div style={{ fontFamily: "'Fraunces', serif", fontSize: 28, fontWeight: 700, color: "#1a1a2e", marginBottom: 24 }}>{isEditing ? "Edit Listing" : "Sell an Item"}</div>
