@@ -6,6 +6,7 @@ import { useState } from "react";
 import { CATEGORIES } from "../utils/constants";
 import { callGemini } from "../utils/gemini";
 import { createProduct } from "../utils/firestore";
+import { uploadImage } from "../utils/cloudinary";
 
 export default function SellPage({ currentUser, editProduct, onSaved, onCancel, notify }) {
   const isEditing = !!editProduct;
@@ -14,7 +15,6 @@ export default function SellPage({ currentUser, editProduct, onSaved, onCancel, 
   const [price, setPrice] = useState(editProduct?.price?.toString() || "");
   const [category, setCategory] = useState(editProduct?.category || "Electronics");
   const [images, setImages] = useState(editProduct?.images || []);
-  const [imageUrl, setImageUrl] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [priceLoading, setPriceLoading] = useState(false);
 
@@ -66,8 +66,28 @@ export default function SellPage({ currentUser, editProduct, onSaved, onCancel, 
     setPriceLoading(false);
   };
 
-  const addImage = () => {
-    if (imageUrl.trim() && images.length < 5) { setImages([...images, imageUrl.trim()]); setImageUrl(""); }
+  const handleImageUpload = async (e) => {
+
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    try {
+
+      notify("Uploading image...");
+
+      const imageUrl = await uploadImage(file);
+
+      setImages([...images, imageUrl]);
+
+      notify("Image uploaded!");
+
+    } catch (error) {
+
+      console.error(error);
+
+      notify("Upload failed", "error");
+    }
   };
 
   const handleSave = async () => {
@@ -119,10 +139,7 @@ export default function SellPage({ currentUser, editProduct, onSaved, onCancel, 
         </div>
         <div style={{ marginBottom: 16 }}>
           <label style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: "#534AB7", marginBottom: 6 }}>Product Images (URL)</label>
-          <div style={{ display: "flex", gap: 8 }}>
-            <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} onKeyDown={e => e.key === "Enter" && addImage()} placeholder="Paste image URL and press Add" style={{ flex: 1, padding: "10px 14px", border: "1.5px solid #e2e0ff", borderRadius: 10, fontSize: 14, fontFamily: "'DM Sans', sans-serif", background: "#fafafe", color: "#1a1a2e", outline: "none" }} />
-            <Btn onClick={addImage} variant="secondary">Add</Btn>
-          </div>
+            <input type="file" accept="image/*" onChange={handleImageUpload}/>
           {images.length > 0 && (
             <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
               {images.map((img, i) => (
