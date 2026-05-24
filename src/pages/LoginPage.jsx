@@ -1,35 +1,54 @@
 import { useState, useRef } from "react";
-import { getUsers } from "../utils/storage";
+import { login, googleLogin } from "../utils/auth";
+import {createUser,getUserByUID} from "../utils/firestore";
 import Card from "../components/Card";
 import Btn from "../components/Btn";
 import Input from "../components/Input";
-import { googleLogin } from "../utils/auth";
 
 export default function LoginPage({ onLogin, onSwitch, notify }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    const users = getUsers();
-    const user = users.find(u => u.email === email && u.password === password);
-    if (user) { onLogin(user); }
-    else { notify("Invalid email or password.", "error"); }
+  const handleLogin = async () => {
+    if (!email || !password) {
+      notify("Fill all fields.", "error");
+      return;
+    } try {
+      const result = await login(email, password);
+      const userData = {
+        ...result.user,
+        name: result.user.displayName || "User"
+      };
+      notify("Logged in successfully!");
+      const fullUser = await getUserByUID(result.user.uid);
+      onLogin(fullUser);
+    } catch (error) {
+      console.error(error);
+      notify("Invalid email or password", "error");
+    }
   };
 
   const handleGoogleLogin = async () => {
-
     try {
-
       const result = await googleLogin();
+      let fullUser = await getUserByUID(
+        result.user.uid
+      );
 
+      if (!fullUser) {
+        await createUser({
+          uid: result.user.uid,
+          email: result.user.email,
+          name: result.user.displayName || "User"
+        });
+        fullUser = await getUserByUID(
+          result.user.uid
+        );
+      }
       notify("Logged in successfully!");
-
-      onLogin(result.user);
-
+      onLogin(fullUser);
     } catch (error) {
-
       console.error(error);
-
       notify("Google login failed", "error");
     }
   };

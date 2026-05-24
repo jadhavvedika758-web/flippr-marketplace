@@ -1,38 +1,44 @@
 import { useState } from "react";
 import { signup } from "../utils/auth";
 import { createUser } from "../utils/firestore";
+import { getUserByUID } from "../utils/firestore";
 import Card from "../components/Card";
 import Btn from "../components/Btn";
 import Input from "../components/Input";
+
 
 export default function SignupPage({ onSignup, onSwitch, notify }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSignup = async () => {
-    if (!name || !email || !password) {
-      notify("Fill all fields.", "error");
-      return;
-    }
-    if (password.length < 6) {
-      notify("Password must be 6+ characters.", "error");
-      return;
-    }
-    try {
-      const result = await signup(email, password);
-      await createUser({
-        uid: result.user.uid,
-        email: result.user.email,
-        name
-      });
-      notify("Account created successfully!");
-      onSignup(result.user);
-    } catch (error) {
-      console.error(error);
-      notify(error.message, "error");
-    }
-  };
+const handleSignup = async () => {
+
+  if (!name || !email || !password) {
+    notify("Fill all fields.", "error");
+    return;
+  }
+
+  if (password.length < 6) {
+    notify("Password must be 6+ characters.", "error");
+    return;
+  }
+
+  try {
+    const result = await signup(email, password);
+    await createUser({
+      uid: result.user.uid,
+      email: result.user.email,
+      name
+    });
+    notify("Account created successfully!");
+    const fullUser = await getUserByUID(result.user.uid);
+    onSignup(fullUser);
+  } catch (error) {
+    console.error(error);
+    notify(error.message, "error");
+  }
+};
 
   return (
     <div style={{ maxWidth: 420, margin: "0 auto" }}>

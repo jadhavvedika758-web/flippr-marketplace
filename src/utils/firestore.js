@@ -1,7 +1,9 @@
 import {
   collection,
   addDoc,
-  getDocs
+  getDocs,
+  query,
+  where
 } from "firebase/firestore";
 
 import { db } from "../firebase";
@@ -41,3 +43,20 @@ export async function createUser(user) {
     createdAt: Date.now()
   });
 }
+
+  export async function getUserByUID(uid) {
+
+    const q = query(
+      collection(db, "users"),
+      where("uid", "==", uid)
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) return null;
+
+    return {
+      id: snapshot.docs[0].id,
+      ...snapshot.docs[0].data()
+    };
+  }
