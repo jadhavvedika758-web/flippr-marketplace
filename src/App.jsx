@@ -20,6 +20,9 @@ import {getUsers,getProducts,getMessages,saveUsers,saveProducts,saveMessages} fr
 import {SEED_PRODUCTS,SEED_USERS} from "./utils/seedData";
 import { initData } from "./utils/initData";
 import { getProductsFromDB } from "./utils/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase";
+import { logout } from "./utils/auth";
 
 export default function App() {
   initData();
@@ -111,6 +114,32 @@ export default function App() {
     loadProducts();
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        if (user) {
+          setCurrentUser(user);
+        } else {
+          handleLogout();
+        }
+      }
+    );
+    return () => unsubscribe();
+  }, []);
+  
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setCurrentUser(null);
+      notify("Logged out successfully!");
+      setPage("home");
+    } catch (error) {
+      console.error(error);
+      notify("Logout failed", "error");
+    }
+  };
+
   return (
     <div style={{ minHeight: "100vh", background: "#f7f6ff", fontFamily: "'DM Sans', sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@400;600;700;800&display=swap" rel="stylesheet" />
@@ -130,7 +159,7 @@ export default function App() {
           {currentUser && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: 8 }}>
               <Avatar name={currentUser.name} size={30} />
-              <button onClick={() => { setCurrentUser(null); setPage("home"); notify("Logged out."); }} style={{ background: "transparent", border: "none", color: "#c4b5fd", fontSize: 13, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Logout</button>
+              <button onClick={handleLogout} style={{ background: "transparent", border: "none", color: "#c4b5fd", fontSize: 13, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Logout</button>
             </div>
           )}
         </div>

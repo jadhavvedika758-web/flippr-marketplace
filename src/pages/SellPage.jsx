@@ -98,7 +98,7 @@ export default function SellPage({ currentUser, editProduct, onSaved, onCancel, 
 
     try {
       await createProduct({
-        sellerId: currentUser.id,
+        sellerId: currentUser.uid,
         sellerName: currentUser.name,
         title,
         description: desc,

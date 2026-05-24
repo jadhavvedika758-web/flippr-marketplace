@@ -30,3 +30,14 @@ export async function createProduct(product) {
     active: true
   });
 }
+
+export async function createUser(user) {
+
+  await addDoc(collection(db, "users"), {
+    uid: user.uid,
+    email: user.email,
+    name: user.name,
+    role: "user",
+    createdAt: Date.now()
+  });
+}

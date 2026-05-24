@@ -4,20 +4,25 @@ import Avatar from "../components/Avatar";
 import Input from "../components/Input";
 import ProductCard from "../components/ProductCard";
 import { useState } from "react";
-import {getUsers,getProducts,getMessages,saveUsers,saveProducts,saveMessages} from "../utils/storage";
 
 export default function ProfilePage({ currentUser, products, onDelete, onEdit, refreshProducts, setCurrentUser, notify }) {
   if (!currentUser) return <div style={{ textAlign: "center", padding: 60 }}><div style={{ fontFamily: "'Fraunces', serif", fontSize: 24 }}>Please login</div></div>;
-  const myProducts = products.filter(p => p.sellerId === currentUser.id);
+  const myProducts = products.filter(
+    p => p.sellerId === currentUser.uid
+  );
   const activeListings = myProducts.filter(p => p.active);
   const [editName, setEditName] = useState(false);
   const [newName, setNewName] = useState(currentUser.name);
 
   const saveName = () => {
-    const users = getUsers().map(u => u.id === currentUser.id ? { ...u, name: newName } : u);
-    saveUsers(users);
-    setCurrentUser({ ...currentUser, name: newName });
+
+    setCurrentUser({
+      ...currentUser,
+      name: newName
+    });
+
     setEditName(false);
+
     notify("Name updated!");
   };
 
