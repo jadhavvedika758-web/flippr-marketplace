@@ -16,13 +16,14 @@ import SellPage from "./pages/SellPage";
 import SignupPage from "./pages/SignupPage";
 import {CATEGORIES,ADMIN_EMAIL,ADMIN_PASS} from "./utils/constants";
 import { callGemini } from "./utils/gemini";
-import {getUsers,getProducts,getMessages,saveUsers,saveProducts,saveMessages} from "./utils/storage";
+import {getProducts,getMessages,saveMessages} from "./utils/storage";
 import {SEED_PRODUCTS,SEED_USERS} from "./utils/seedData";
 import { initData } from "./utils/initData";
 import { getProductsFromDB } from "./utils/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 import { logout } from "./utils/auth";
+import { getUserByUID } from "./utils/firestore";
 
 export default function App() {
   initData();
@@ -117,11 +118,14 @@ export default function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       auth,
-      (user) => {
+      async (user) => {
         if (user) {
-          setCurrentUser(user);
+          const fullUser = await getUserByUID(
+            user.uid
+          );
+          setCurrentUser(fullUser);
         } else {
-          handleLogout();
+          setCurrentUser(null);
         }
       }
     );
