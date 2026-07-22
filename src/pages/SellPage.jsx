@@ -4,7 +4,7 @@ import Select from "../components/Select";
 import Btn from "../components/Btn";
 import { useState } from "react";
 import { CATEGORIES } from "../utils/constants";
-import { callGemini } from "../utils/gemini";
+import { callAI } from "../utils/ai";
 import { createProduct } from "../utils/firestore";
 import { uploadImage } from "../utils/cloudinary";
 
@@ -37,7 +37,7 @@ export default function SellPage({ currentUser, editProduct, onSaved, onCancel, 
     Keep it 3-4 sentences.
     `;
 
-    const reply = await callGemini(prompt);
+    const reply = await callAI(prompt);
     setDesc(reply);
     setAiLoading(false);
   };
@@ -56,7 +56,7 @@ export default function SellPage({ currentUser, editProduct, onSaved, onCancel, 
     {"price":15000,"reason":"short reason"}
     `;
 
-    const reply = await callGemini(prompt);
+    const reply = await callAI(prompt);
     try {
       const clean = reply.replace(/```json|```/g, "").trim();
       const { price: p, reason } = JSON.parse(clean);

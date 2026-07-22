@@ -2,8 +2,9 @@ import {
   collection,
   addDoc,
   getDocs,
-  query,
-  where
+  getDoc,
+  doc,
+  setDoc,
 } from "firebase/firestore";
 
 import { db } from "../firebase";
@@ -34,29 +35,21 @@ export async function createProduct(product) {
 }
 
 export async function createUser(user) {
-
-  await addDoc(collection(db, "users"), {
-    uid: user.uid,
+  await setDoc(doc(db, "users", user.uid), {
     email: user.email,
     name: user.name,
     role: "user",
-    createdAt: Date.now()
+    createdAt: Date.now(),
   });
 }
 
-  export async function getUserByUID(uid) {
+export async function getUserByUID(uid) {
+  const snap = await getDoc(doc(db, "users", uid));
 
-    const q = query(
-      collection(db, "users"),
-      where("uid", "==", uid)
-    );
+  if (!snap.exists()) return null;
 
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty) return null;
-
-    return {
-      id: snapshot.docs[0].id,
-      ...snapshot.docs[0].data()
-    };
-  }
+  return {
+    id: snap.id,
+    ...snap.data(),
+  };
+}

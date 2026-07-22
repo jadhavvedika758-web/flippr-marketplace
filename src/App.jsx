@@ -15,7 +15,7 @@ import DetailPage from "./pages/DetailPage";
 import SellPage from "./pages/SellPage";
 import SignupPage from "./pages/SignupPage";
 import {CATEGORIES,ADMIN_EMAIL,ADMIN_PASS} from "./utils/constants";
-import { callGemini } from "./utils/gemini";
+import { callAI } from "./utils/ai";
 import {getProducts,getMessages,saveMessages} from "./utils/storage";
 import {SEED_PRODUCTS,SEED_USERS} from "./utils/seedData";
 import { initData } from "./utils/initData";
@@ -63,22 +63,58 @@ export default function App() {
 
     setAiSearchLoading(true);
 
-    const filtered = products
-      .filter((p) => {
-        const text =
-          (
-            p.title +
-            " " +
-            p.description +
-            " " +
-            p.category
-          ).toLowerCase();
+    try {
+      const prompt = `
+  You are helping users search products.
 
-        return text.includes(searchQuery.toLowerCase());
-      })
-      .map((p) => p.id);
+  User Query:
+  "${searchQuery}"
 
-    setAiSearchResult(filtered);
+  Products:
+  ${products
+    .map(
+      (p) => `
+  ID: ${p.id}
+  Title: ${p.title}
+  Description: ${p.description}
+  Category: ${p.category}
+  Price: ${p.price}
+  `
+    )
+    .join("\n")}
+
+  Return ONLY a JSON array of matching product IDs.
+
+  Example:
+  ["123","456"]
+
+  Do not explain anything.
+  Do not use markdown.
+  Only return the JSON array.
+  `;
+
+      const response = await callAI(prompt);
+
+      console.log(response);
+
+      let ids = [];
+
+      try {
+        const clean = response
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
+          .trim();
+
+        ids = JSON.parse(clean);
+      } catch {
+        ids = [];
+      }
+
+      setAiSearchResult(ids);
+    } catch (err) {
+      console.error(err);
+      notify("AI Search failed", "error");
+    }
 
     setAiSearchLoading(false);
   };
